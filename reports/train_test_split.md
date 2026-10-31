@@ -1,164 +1,96 @@
 # Preprocessing Pipeline and Train/Test Split Design
 
-## 1. Objective
+## 1. Overview
 
-This document describes the preprocessing workflow and evaluation split
-used for the Diabetes 30-Day Readmission Prediction project.
+This section outlines the preprocessing steps and train/test split design for the Diabetes 30-Day Readmission Prediction project.
 
-The dataset contains multiple hospital encounters for some patients.
-Therefore, the split was designed at the patient level to reduce the
-risk of data leakage between training and testing data.
+As the data contains multiple instances per patient, the train/test split has been designed to ensure we're splitting at the patient level to prevent any information leakage.
 
-## 2. Target Preparation
+## 2. Target Variable Cleaning
 
-The original target variable is `readmitted`, with three possible
-values: `NO`, `>30`, and `<30`.
+Original target variable:
+readmitted
+- NO
+- >30
+- <30
+We have transformed this into a binary variable:
 
-A binary target named `readmitted_30d` was created:
+readmitted_30d
 
--   `1` when `readmitted == '<30'` (readmitted within 30 days).
--   `0` when `readmitted` is `NO` or `>30`.
+- 1 = readmitted == '<30'
+- 0 = readmitted == 'NO' or '>30'
 
-The binary target distribution across the full dataset was:
+Binary variable distribution:
+Binary variable | Instances | %
+--------------- | --------- | ---
 
-  Binary target                              Records    Percentage
-  ------------------------------------ ------------- -------------
-  0 -- Not readmitted within 30 days          90,409        88.84%
-  1 -- Readmitted within 30 days              11,357        11.16%
-  **Total**                              **101,766**   **100.00%**
+0 = Not readmitted within 30 days | 90409 | 88.84%
+1 = Readmitted within 30 days | 11357 | 11.16%
+Total | 101766 | 100.00%
 
-The target is imbalanced, with the positive class representing 11.16% of
-all encounters.
+The binary variable is an imbalanced target variable with the positive class representing 11.16% of the dataset.
 
-## 3. Feature Preparation
+## 3. Feature Variable Cleaning
 
-The following preparation decisions were applied:
+The following transformations/decisions have been made:
 
--   The `?` placeholder was treated as a missing value.
--   `encounter_id` and `patient_nbr` were excluded from predictive
-    features because they are identifiers. `patient_nbr` was retained
-    separately for grouping the split.
--   `weight` was excluded from modelling because 98,569 values (96.86%)
-    were missing.
--   Integer-coded fields such as `admission_type_id`,
-    `discharge_disposition_id`, and `admission_source_id` were treated
-    as categorical variables rather than continuous numerical
-    measurements.
--   The modelling data contained 8 numerical features and 38 categorical
-    features before preprocessing.
+- The '?' value has been treated as nulls.
+- The encounter_id and patient_nbr variables were removed from the predictive variables due to being an identifier. However, patient_nbr has been retained to use in the grouping.
+
+- The weight variable was removed due to having a large amount of missing data (96.86% of instances were null).
+- Categorical variables were identified by looking at the integer encoded variables. These include admission_type_id, discharge_disposition_id, admission_source_id.
+
+- We have 8 numerical variables and 38 categorical variables in the modelling dataset after cleaning.
 
 ## 4. Preprocessing Pipeline
-
-Preprocessing was implemented using Scikit-learn transformers within a
-modelling pipeline. This ensures that imputation, scaling, and encoding
-are fitted on the training data and then applied to the test data.
-
-  ---------------------------------------------------------------------------
-  Feature type            Preprocessing method        Purpose
-  ----------------------- --------------------------- -----------------------
-  Numerical               Median imputation           Fill missing numerical
-                                                      values
-
-  Numerical               StandardScaler              Standardize numerical
-                                                      feature scales
-
-  Categorical             Most-frequent imputation    Fill missing
-                                                      categorical values
-
-  Categorical             OneHotEncoder               Convert categories into
-                                                      numeric indicator
-                                                      features
-
-  Categorical encoding    `handle_unknown="ignore"`   Handle categories
-  setting                                             present in test data
-                                                      but not seen during
-                                                      training
-
-  Categorical encoding    `min_frequency=10`          Group infrequent
-  setting                                             categories according to
-                                                      the encoder's frequency
-                                                      setting
-  ---------------------------------------------------------------------------
-
-The numerical and categorical transformations were combined using a
-`ColumnTransformer`.
-
-**Data leakage prevention:** The preprocessing pipeline was fitted on
-the training data only. The fitted transformations were then applied to
-the test data. The test data was not used to calculate imputation
-values, scaling parameters, or category encodings.
+All preprocessing has been done using Scikit-learn Transformers inside a modelling pipeline to ensure the transformations are fit on the training data and transformed on the test data.
+Feature Type | Transformation | Reason
+------------ | -------------- | ------
+Numerical | Impute missing values using the median |
+Numerical | Standardise using StandardScaler |
+Categorical | Impute missing values using the most frequent value |
+Categorical | Encode using OneHotEncoder |
+Encoding | handle_unknown="ignore" | To handle unknown categories in the test data.
+Encoding | min_frequency=10 | To group together categories with low frequency.
+We have used a ColumnTransformer to combine these transformations.
+Information leakage has been prevented by fitting the preprocessing pipeline on the training data and transforming the test data.
 
 ## 5. Train/Test Split Design
+### Splitting
+The data has been split using Scikit-learns GroupShuffleSplit method. An 80/20 split was used.
+The data has been grouped by patient_nbr meaning all instances for a given patient will be in the training or test sets.
 
-### Splitting method
+### Why Group by Patient
+Some patients will have multiple instances in the dataset. If we had used a random row based split we could have some instances for the same patient in both the training and test sets. This would mean the model could utilise the patterns specific to that patient causing an overly optimistic evaluation.
+By splitting at the patient level we reduce the chances of this happening and are evaluating our model on new patients.
 
-The data was divided using Scikit-learn's `GroupShuffleSplit` with an
-80:20 training/testing split.
+### Parameters
+Parameter | Value
+--------- | -----
+Splitting Method | GroupShuffleSplit
+Training Proportion | 80%
+Test Proportion | 20%
+Grouping | patient_nbr
+Random State | 42
 
-The grouping variable was `patient_nbr`. All encounters belonging to a
-given patient were assigned to either the training set or the test set,
-rather than being distributed independently between both sets.
+### Results
+Metric | Training Data | Test Data
+------ | ------------- | -------
+Instances | 81613      | 20153
+Positive Class Proportion | 11.28% | 10.67%
+Patients duplicated between sets | 0 | 0
+The positive class proportions are quite similar although may not be exactly the same. GroupShuffleSplit forces separation between groups so there is no stratification based on the target variable.
 
-### Why patient-level grouping was selected
-
-A patient can have multiple encounters in the dataset. With a
-conventional random row-level split, encounters from the same patient
-could appear in both the training and test sets. This could allow the
-model to benefit from patient-specific patterns seen during training and
-lead to an overly optimistic evaluation.
-
-Grouping by patient reduces this risk and evaluates performance on
-patients not represented in the training set.
-
-### Split configuration
-
-  Setting               Value
-  --------------------- ---------------------
-  Splitting method      `GroupShuffleSplit`
-  Training proportion   80%
-  Testing proportion    20%
-  Grouping variable     `patient_nbr`
-  Random state          42
-
-### Actual split results
-
-  Metric                           Training set   Test set
-  ------------------------------ -------------- ----------
-  Number of encounters                   81,613     20,153
-  Positive-class rate                    11.28%     10.67%
-  Patient overlap between sets                0          0
-
-The positive-class rates in the two sets are reasonably close, but they
-are not guaranteed to be identical. `GroupShuffleSplit` enforces group
-separation; it does not perform stratification by target class.
-
-## 6. Cross-Validation Design
-
-A single 80:20 patient-grouped holdout split was used for this baseline
-experiment. Cross-validation was **not** performed at this stage.
-
-If cross-validation is introduced in later experiments, the folds should
-also be group-aware so that encounters from the same patient do not
-appear in both the training and validation portions of a fold. Any model
-selection or threshold tuning should be performed without using the
-final test set.
+## 6. Cross Validation Design
+An 80/20 holdout split has been used with the data grouped by patient. We haven't performed any cross validation.
+If we introduce cross validation in future experiments we need to ensure the splits are grouped. This means we won't have any instances for the same patient in both the training and validation sets. Model selection and threshold tuning shouldn't be performed using the final test set.
 
 ## 7. Summary
-
-The preprocessing and evaluation design addresses several important
-properties of the dataset:
-
-1.  Missing-value placeholders are handled explicitly.
-2.  Highly incomplete `weight` data is excluded from the baseline
-    features.
-3.  Identifier columns are excluded from predictive features.
-4.  Integer-coded categorical fields are treated as categorical.
-5.  Numerical and categorical preprocessing is fitted on training data
-    only.
-6.  Patient-level grouping prevents the same patient's encounters from
-    appearing in both training and test sets.
-
-**Conclusion:** The baseline uses a patient-grouped 80:20 holdout split
-and a training-only preprocessing pipeline. This provides a more
-appropriate evaluation than a simple random row-level split for a
-dataset containing repeated encounters per patient.
+The preprocessing and evaluation has considered several key aspects of the data:
+- '?' values have been considered.
+- The weight variable has been removed due to missing a large amount of data.
+- Identifier variables have been removed.
+- Integer encoded categorical variables have been considered as categorical.
+- Transformations have only been fit on the training data.
+- Grouping by patient to ensure we don't have any instances for the same patient in the training and test sets.
+The baseline has been designed with an 80/20 holdout with grouping by patient and a preprocessing pipeline fit only on the training data. This gives us a more appropriate evaluation for data with multiple instances per patient.

@@ -2,7 +2,7 @@
 
 A machine learning project using the Diabetes 130-US hospitals dataset to explore whether a hospital encounter is followed by a readmission within 30 days.
 
-## Project overview
+# Project overview
 
 The original `readmitted` field has three values:
 
@@ -17,7 +17,7 @@ For the binary prediction task, the target is defined as:
 
 The project includes a data audit and a baseline modelling notebook. The baseline uses a majority-class dummy classifier for comparison and Logistic Regression as the initial machine-learning model.
 
-## Repository structure
+# Repository structure
 
 ```text
 ML/
@@ -27,8 +27,7 @@ ML/
 │   └── IDS_mapping.csv
 ├── notebooks/
 │   ├── data_audit.ipynb
-│   ├── baseline_model.ipynb
-│   └── reports/                   # Notebook-generated reports, if saved here
+│   └── baseline_model.ipynb
 ├── reports/
 │   ├── data_audit_summary.md
 │   ├── baseline_results.md
@@ -41,24 +40,24 @@ ML/
 
 The `.venv/` directory is local to your computer and should not be uploaded to GitHub.
 
-## Requirements
+# Requirements
 
 - Python 3.10 or later recommended.
 - Visual Studio Code.
 - VS Code Python and Jupyter extensions.
 - The two dataset files placed in the `data/` directory.
 
-## Setup (Windows / PowerShell)
+# Setup (Windows / PowerShell)
 
 Open the project root folder in VS Code. Open **Terminal → New Terminal** and confirm that the terminal is in the project root (the folder containing `requirements.txt`).
 
-### 1. Create a virtual environment
+# 1. Create a virtual environment
 
 ```powershell
 python -m venv .venv
 ```
 
-### 2. Activate the environment
+# 2. Activate the environment
 
 ```powershell
 .\.venv\Scripts\Activate.ps1
@@ -70,27 +69,27 @@ If PowerShell blocks activation, you can use Command Prompt instead:
 .venv\Scripts\activate.bat
 ```
 
-### 3. Install dependencies
+# 3. Install dependencies
 
 ```powershell
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-### 4. Register the Jupyter kernel
+# 4. Register the Jupyter kernel
 
 ```powershell
 python -m ipykernel install --user --name diabetes-env --display-name "Python (Diabetes)"
 ```
 
-### 5. Select the kernel in VS Code
+# 5. Select the kernel in VS Code
 
 1. Open `notebooks/data_audit.ipynb`.
 2. Click **Select Kernel** in the notebook toolbar.
 3. Choose **Python (Diabetes)** (or the project's `.venv` Python interpreter).
 4. Repeat for `notebooks/baseline_model.ipynb`.
 
-## Dataset placement
+# Dataset placement
 
 Download or obtain the dataset files separately and place them here:
 
@@ -102,11 +101,11 @@ data/
 
 The notebooks expect the files to be available locally. Do not commit private, restricted, or large dataset files to a public repository unless you have confirmed that redistribution is permitted. If the dataset is not included in the repository, explain in your project submission how to obtain it.
 
-## How to run
+# How to run
 
 Run the notebooks in this order:
 
-### 1. Data audit
+# 1. Data audit
 
 Open `notebooks/data_audit.ipynb` and run all cells from top to bottom.
 
@@ -148,18 +147,7 @@ REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
 Run the notebook from its first cell after selecting the correct kernel.
 
-## Reproducibility
+# Reproducibility
 
 Install the dependencies using `requirements.txt` and run the notebooks in the order above. The notebooks contain the analysis and modelling workflow. For reproducible results, keep the random seeds and model settings in the notebooks unchanged unless you document the changes.
 
-## Notes and limitations
-
-- The target is imbalanced; accuracy alone is not sufficient to assess model performance.
-- Multiple encounters can belong to the same patient, so patient-level splitting is important.
-- IQR-identified outliers are not necessarily errors and should not be removed automatically.
-- This is an educational machine-learning project, not a clinical decision-support system.
-- Model performance on this historical dataset does not establish clinical usefulness or performance on other hospitals or time periods.
-
-## License and data use
-
-Add a project license if you intend to publish or share this repository. Confirm the dataset's original terms and redistribution conditions before committing the CSV files.

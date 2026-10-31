@@ -1,124 +1,123 @@
-# Baseline Model Results -- Diabetes 30-Day Readmission Prediction
-
+# Baseline Model Results - Predicting Diabetes Patients Readmission Within 30 Days
 ## 1. Objective
 
-The objective of this baseline experiment is to predict whether a
-patient will be readmitted to the hospital within 30 days of an
-encounter.
+The aim of the baseline is to determine if patients will be readmitted
+within 30 days.
 
-The original `readmitted` target contains three categories:
+The original variable was called 'readmitted’ and had 3 classes:
 
--   `NO`
--   `>30`
--   `<30`
+- NO
 
-For this binary classification task, the target was defined as:
+- >30
 
--   `readmitted_30d = 1` when `readmitted == '<30'`.
--   `readmitted_30d = 0` when `readmitted` is `NO` or `>30`.
+- <30
 
-The positive class therefore represents readmission within 30 days.
+We can simplify this to a binary variable by defining a new variable:
 
-## 2. Models Evaluated
+- readmitted_30d = 1 if readmitted == '<30'
+- readmitted_30d = 0 if readmitted == 'NO’ or '>30’
 
-Two models were evaluated:
+This way we can define our positive class as being readmitted within 30
+days.
+
+## 2. Models Tested
 
 ### Dummy Classifier
 
-A `DummyClassifier` using `strategy="most_frequent"` was used as a
-simple reference baseline. It always predicts the majority class in the
-training data and provides a benchmark that a useful model should
-improve upon.
+A DummyClassifier with strategy="most_frequent" was used as a basic
+baseline. This will always predict the most frequent class in the training
+data.
 
 ### Logistic Regression
 
-Logistic Regression was used as the initial machine-learning baseline
-with the following configuration:
+Logistic Regression was used as a first pass baseline machine learning
+model. The parameters used were:
 
-  Parameter        Setting
-  ---------------- ---------------------
-  Model            Logistic Regression
-  Penalty          L2 (default)
-  `C`              1.0
-  `class_weight`   `balanced`
-  `max_iter`       800
+| Parameter | Value |
 
-The preprocessing steps were included in the modelling pipeline so that
-they were fitted using the training data only.
+|----------|-------|
 
-## 3. Evaluation Metrics
+| Model | Logistic Regression |
 
-Because the positive class represents approximately 11% of encounters,
-the dataset is imbalanced. Accuracy alone would not adequately describe
-model performance.
+| Penalty | L2 (default) |
 
-The proposed evaluation metrics were:
+| C | 1.0 |
 
--   **PR-AUC (Average Precision):** Primary metric. It summarizes the
-    precision-recall trade-off and is informative when the positive
-    class is relatively uncommon.
--   **Recall at precision ≥ 0.60:** Measures the proportion of actual
-    positive cases identified while requiring precision to be at least
-    0.60. If no threshold achieves the required precision, recall is
-    reported as not achieved.
--   **ROC-AUC:** Secondary metric. It measures the model's ability to
-    rank positive cases above negative cases across classification
-    thresholds.
+| class_weight | balanced |
 
-The positive-class prevalence in the test set was 0.1067 (10.67%),
-providing a useful reference for interpreting PR-AUC.
+| max_iter | 800 |
+
+The preprocessing was included in the pipeline so that the model is only
+
+fit on the training data.
+
+## 3. Metrics Used
+
+As we have approximately 11% of encounters in the positive class the
+
+data is imbalanced and accuracy alone would not give an accurate view of
+
+our models.
+
+The metrics chosen were:
+
+- PR-AUC (Average Precision): This is our primary metric. It gives us
+information about our model based on the trade-off between precision and
+recall. It is a useful metric due to the low number of positives.
+
+- Recall: This is the proportion of true positives predicted. We are measuring this at thresholds where precision is >= 0.60. If there are no thresholds with a precision of 0.60 this will be marked as not achieved.
+
+- ROC-AUC: This is our secondary metric. It gives us information about how well our model can rank the positives over the negatives.
+
+We had 10.67% of positives in the test set (0.1067).
 
 ## 4. Baseline Results
 
-  Metric                         Dummy Classifier   Logistic Regression
-  ---------------------------- ------------------ ---------------------
-  PR-AUC (Average Precision)               0.1067            **0.2023**
-  ROC-AUC                                  0.5000            **0.6578**
-  Recall at precision ≥ 0.60         Not achieved                0.0023
+| Metric | Dummy Classifier | Logistic Regression |
 
-## 5. Results Interpretation
+|-------|------------------|---------------------|
 
-Logistic Regression achieved a PR-AUC of **0.2023**, compared with
-**0.1067** for the Dummy Classifier and a test-set positive-class
-prevalence of **0.1067**. This indicates that Logistic Regression
-provides better precision-recall ranking performance than the
-majority-class baseline.
+| PR-AUC (Average Precision) | 0.1067 | 0.2023 |
 
-The Logistic Regression ROC-AUC was **0.6578**, compared with **0.5000**
-for the Dummy Classifier, indicating better-than-random ranking ability.
+| ROC-AUC | 0.5000 | 0.6578 |
 
-However, recall at precision ≥ 0.60 was only **0.0023 (0.23%)** for
-Logistic Regression. This means that, at a threshold satisfying the
-specified precision requirement, the model identified only a very small
-fraction of actual 30-day readmissions. The Dummy Classifier did not
-achieve the required precision threshold.
+| Recall (Precision >= 0.60) | Not Achieved | 0.0023 |
 
-Overall, Logistic Regression improves on the simple Dummy Classifier,
-but its performance remains modest. In particular, the low recall at the
-required precision level shows that the baseline is not yet effective at
-identifying a substantial proportion of positive cases under that
-constraint.
+## 5. Interpreting Results
+
+Our Logistic Regression model has a PR-AUC of 0.2023 which compares to
+0.1067 for our Dummy Classifier as well as a positive class prevalence in
+the test set of 0.1067. This shows our model has better ranking power in
+terms of precision and recall than our majority class baseline.
+Our Logistic Regression also has a higher ROC-AUC of 0.6578 than our Dummy
+Classifier of 0.5000. This means our model has better ranking ability than random guessing.
+Our model only had a recall of 0.0023 (0.23%) at a threshold of precision
+>= 0.60. This means the model only correctly predicted a small proportion
+of true 30 day readmissions. Our Dummy Classifier also did not achieve
+the precision threshold.
+Overall our Logistic Regression model shows improvement over our simple
+Dummy Classifier, however it is still not very good. As the recall at the
+precision threshold is very low this shows our baseline is not currently
+effective at predicting a large proportion of positives.
 
 ## 6. Conclusion and Next Steps
 
-The baseline experiment establishes a reference point for future model
-development. Logistic Regression improves PR-AUC and ROC-AUC over the
-majority-class Dummy Classifier, but recall at the required precision
-threshold remains very low.
+Our baseline has provided us with a starting point for our models. Our
+Logistic Regression model performed better in terms of PR-AUC and ROC-AUC
+than our Dummy Classifier, however the recall at the precision threshold
+was very low.
+Next steps could be to:
 
-Possible next steps include:
+1. Look into different thresholds for our model using the training data
+or validation set, instead of using the test set to tune.
 
-1.  Investigate model thresholds using the training data or a separate
-    validation set rather than tuning on the test set.
-2.  Compare additional models while retaining the same patient-level
-    evaluation design.
-3.  Review feature availability at the intended prediction time to avoid
-    using information that would not be available when a prediction is
-    made.
-4.  Consider further validation on a separate time period or external
-    dataset.
+2. Test more models.
 
-**Limitation:** These results are from a single patient-grouped holdout
-test set. They do not establish clinical usefulness or generalization to
-other hospitals or time periods. This is an educational machine-learning
-experiment, not a clinical decision-support system.
+3. Check what features we have available at the time we want to make our predictions to ensure we are not using data that will not be available.
+
+4. Further validate by using a separate time period or external data.
+
+These results are only based on one holdout test set for the patient group.
+They do not show the model will be clinically useful or generalise to other
+hospitals or times. This is an educational ML experiment and not a clinical decision support tool.
+
