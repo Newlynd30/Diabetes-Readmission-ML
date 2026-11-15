@@ -40,6 +40,34 @@
     evaluation*.
     https://scikit-learn.org/stable/modules/model_evaluation.html
 
+
+9. External References and Resources
+
+The following official documentation and research resources were consulted during Milestone 3:
+
+Scikit-learn – Random Forest Classifier
+https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
+
+Scikit-learn – Extra Trees Classifier
+https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.ExtraTreesClassifier.html
+
+Scikit-learn – Model Evaluation
+https://scikit-learn.org/stable/modules/model_evaluation.html
+
+Scikit-learn – Confusion Matrix
+https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
+
+Scikit-learn – Precision-Recall Curve
+https://scikit-learn.org/stable/modules/generated/sklearn.metrics.precision_recall_curve.html
+
+Scikit-learn – GridSearchCV
+https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GridSearchCV.html
+
+Scikit-learn – GroupKFold
+https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.GroupKFold.html
+
+
+
 ## 2. Project Repository
 
 GitHub repository: https://github.com/Newlynd30/Diabetes-Readmission-ML
@@ -50,7 +78,24 @@ AI-based assistance was used selectively during this project, primarily to clari
 
 The project work, including dataset exploration, implementation and execution of the analysis, interpretation of results, and evaluation of the models, was carried out by me.
 
+### Milestone 3 :
+Understanding Random Forest and Extra Trees classification.
+
+Guidance on implementing model evaluation and comparison.
+
+Help with generating confusion matrices and precision-recall curves.
+
+Troubleshooting Python and Jupyter Notebook errors.
+
+Guidance on hyperparameter tuning and interpreting model performance.
+
+Assistance with organising the results and drafting the conclusion.
+
+The suggested code and explanations were reviewed and tested in the local Python environment. Model outputs were generated through notebook execution and used for the project's analysis.
+
+
 I reviewed and verified the project outputs and take full responsibility for the submitted work. The assistance served only as a supplementary resource to support my understanding and address difficulties encountered during the project.
+
 
 ## 4. Student Confirmation
 
